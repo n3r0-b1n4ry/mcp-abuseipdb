@@ -24,13 +24,13 @@ fi
 
 # Build the Docker image
 echo -e "${YELLOW}🔨 Building Python Docker image...${NC}"
-docker build -t abuseipdb-mcp-server .
+docker build -t abuseipdb-mcp .
 
 # Run the container
 echo -e "${YELLOW}🚀 Starting Python container...${NC}"
 docker run -it --rm \
-    --name abuseipdb-mcp-server \
+    --name abuseipdb-mcp \
     -e ABUSEIPDB_API_KEY="$ABUSEIPDB_API_KEY" \
-    abuseipdb-mcp-server
+    abuseipdb-mcp
 
 echo -e "${GREEN}✅ Container stopped${NC}" 

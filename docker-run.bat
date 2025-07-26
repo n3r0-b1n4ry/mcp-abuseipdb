@@ -15,10 +15,10 @@ if "%ABUSEIPDB_API_KEY%"=="" (
 
 REM Build the Docker image
 echo 🔨 Building Python Docker image...
-docker build -t abuseipdb-mcp-server .
+docker build -t abuseipdb-mcp .
 
 REM Run the container
 echo 🚀 Starting Python container...
-docker run -it --rm --name abuseipdb-mcp-server -e ABUSEIPDB_API_KEY=%ABUSEIPDB_API_KEY% abuseipdb-mcp-server
+docker run -it --rm --name abuseipdb-mcp -e ABUSEIPDB_API_KEY=%ABUSEIPDB_API_KEY% abuseipdb-mcp
 
 echo ✅ Container stopped 

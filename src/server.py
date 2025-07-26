@@ -3,22 +3,18 @@
 import asyncio
 import os
 import re
-from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 from urllib.parse import urlencode
 
 import httpx
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import (
-    CallToolRequest,
     CallToolResult,
-    ListToolsRequest,
     ListToolsResult,
     TextContent,
     Tool,
 )
-from pydantic import BaseModel
 
 
 class AbuseIPDBServer:
@@ -56,7 +52,7 @@ class AbuseIPDBServer:
 
     def setup_handlers(self):
         @self.server.list_tools()
-        async def list_tools() -> ListToolsResult:
+        async def list_tools():
             return ListToolsResult(
                 tools=[
                     Tool(
@@ -115,65 +111,62 @@ class AbuseIPDBServer:
             )
 
         @self.server.call_tool()
-        async def call_tool(request: CallToolRequest) -> CallToolResult:
-            try:
-                if request.params.name == "check_ip":
-                    return await self.check_ip(request.params.arguments)
-                elif request.params.name == "report_ip":
-                    return await self.report_ip(request.params.arguments)
-                else:
-                    raise ValueError(f"Unknown tool: {request.params.name}")
-            except Exception as error:
+        async def call_tool(name, arguments):
+            if name == "check_ip":
+                return await self.check_ip(arguments)
+            elif name == "report_ip":
+                return await self.report_ip(arguments)
+            else:
                 return CallToolResult(
                     content=[
                         TextContent(
                             type="text",
-                            text=f"Tool execution failed: {str(error)}"
+                            text=f"Unknown tool: {name}"
                         )
                     ],
                     isError=True,
                 )
 
     async def check_ip(self, args: Dict[str, Any]) -> CallToolResult:
-        ip_address = args.get("ipAddress")
-        max_age_in_days = args.get("maxAgeInDays", 30)
-        verbose = args.get("verbose", False)
-
-        if not self.api_key:
-            return CallToolResult(
-                content=[
-                    TextContent(
-                        type="text",
-                        text="❌ ABUSEIPDB_API_KEY environment variable is required"
-                    )
-                ],
-                isError=True,
-            )
-
-        # Validate IP address format
-        if not self.is_valid_ip(ip_address):
-            return CallToolResult(
-                content=[
-                    TextContent(
-                        type="text",
-                        text="❌ Invalid IP address format"
-                    )
-                ],
-                isError=True,
-            )
-
-        # Build query parameters
-        params = {
-            "ipAddress": ip_address,
-            "maxAgeInDays": str(max_age_in_days),
-        }
-
-        if verbose:
-            params["verbose"] = ""
-
-        url = f"{self.base_url}/check?{urlencode(params)}"
-
         try:
+            ip_address = args.get("ipAddress")
+            max_age_in_days = args.get("maxAgeInDays", 30)
+            verbose = args.get("verbose", False)
+
+            if not self.api_key:
+                return CallToolResult(
+                    content=[
+                        TextContent(
+                            type="text",
+                            text="❌ ABUSEIPDB_API_KEY environment variable is required"
+                        )
+                    ],
+                    isError=True,
+                )
+
+            # Validate IP address format
+            if not self.is_valid_ip(ip_address):
+                return CallToolResult(
+                    content=[
+                        TextContent(
+                            type="text",
+                            text="❌ Invalid IP address format"
+                        )
+                    ],
+                    isError=True,
+                )
+
+            # Build query parameters
+            params = {
+                "ipAddress": ip_address,
+                "maxAgeInDays": str(max_age_in_days),
+            }
+
+            if verbose:
+                params["verbose"] = ""
+
+            url = f"{self.base_url}/check?{urlencode(params)}"
+
             async with httpx.AsyncClient() as client:
                 response = await client.get(
                     url,
@@ -209,57 +202,57 @@ class AbuseIPDBServer:
             )
 
     async def report_ip(self, args: Dict[str, Any]) -> CallToolResult:
-        ip = args.get("ip")
-        categories = args.get("categories")
-        comment = args.get("comment", "")
-        timestamp = args.get("timestamp")
-
-        if not self.api_key:
-            return CallToolResult(
-                content=[
-                    TextContent(
-                        type="text",
-                        text="❌ ABUSEIPDB_API_KEY environment variable is required"
-                    )
-                ],
-                isError=True,
-            )
-
-        # Validate IP address format
-        if not self.is_valid_ip(ip):
-            return CallToolResult(
-                content=[
-                    TextContent(
-                        type="text",
-                        text="❌ Invalid IP address format"
-                    )
-                ],
-                isError=True,
-            )
-
-        # Validate categories
-        if not self.is_valid_categories(categories):
-            return CallToolResult(
-                content=[
-                    TextContent(
-                        type="text",
-                        text="❌ Categories must be comma-separated integers"
-                    )
-                ],
-                isError=True,
-            )
-
-        # Build form data
-        form_data = {
-            "ip": ip,
-            "categories": categories,
-            "comment": comment,
-        }
-
-        if timestamp:
-            form_data["timestamp"] = timestamp
-
         try:
+            ip = args.get("ip")
+            categories = args.get("categories")
+            comment = args.get("comment", "")
+            timestamp = args.get("timestamp")
+
+            if not self.api_key:
+                return CallToolResult(
+                    content=[
+                        TextContent(
+                            type="text",
+                            text="❌ ABUSEIPDB_API_KEY environment variable is required"
+                        )
+                    ],
+                    isError=True,
+                )
+
+            # Validate IP address format
+            if not self.is_valid_ip(ip):
+                return CallToolResult(
+                    content=[
+                        TextContent(
+                            type="text",
+                            text="❌ Invalid IP address format"
+                        )
+                    ],
+                    isError=True,
+                )
+
+            # Validate categories
+            if not self.is_valid_categories(categories):
+                return CallToolResult(
+                    content=[
+                        TextContent(
+                            type="text",
+                            text="❌ Categories must be comma-separated integers"
+                        )
+                    ],
+                    isError=True,
+                )
+
+            # Build form data
+            form_data = {
+                "ip": ip,
+                "categories": categories,
+                "comment": comment,
+            }
+
+            if timestamp:
+                form_data["timestamp"] = timestamp
+
             async with httpx.AsyncClient() as client:
                 response = await client.post(
                     f"{self.base_url}/report",
@@ -389,6 +382,9 @@ class AbuseIPDBServer:
 
     def is_valid_ip(self, ip: str) -> bool:
         """Basic IP validation (IPv4 and IPv6)"""
+        if not ip:
+            return False
+            
         ipv4_pattern = r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
         ipv6_pattern = r"^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::1$|^::$"
         
@@ -396,6 +392,9 @@ class AbuseIPDBServer:
 
     def is_valid_categories(self, categories: str) -> bool:
         """Check if categories is a comma-separated list of integers"""
+        if not categories:
+            return False
+            
         category_pattern = r"^\d+(,\d+)*$"
         return bool(re.match(category_pattern, categories))
 
