@@ -6,7 +6,6 @@
         "run",
         "--rm",
         "-i",
-        "--name", "abuseipdb-mcp",
         "-e", "ABUSEIPDB_API_KEY",
         "abuseipdb-mcp"
       ],
