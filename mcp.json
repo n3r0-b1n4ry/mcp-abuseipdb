@@ -1,0 +1,213 @@
+{
+  "mcpServers": {
+    "abuseipdb-python": {
+      "command": "python",
+      "args": ["src/server.py"],
+      "description": "AbuseIPDB API integration using Python MCP server",
+      "version": "1.0.0",
+      "author": "AbuseIPDB MCP Server",
+      "homepage": "https://github.com/your-repo/abuseipdb-mcp-server",
+      "license": "MIT",
+      "runtime": {
+        "type": "python",
+        "version": ">=3.8",
+        "dependencies": [
+          "mcp>=1.0.0",
+          "httpx>=0.25.0",
+          "pydantic>=2.0.0",
+          "python-dotenv>=1.0.0"
+        ]
+      },
+      "env": {
+        "ABUSEIPDB_API_KEY": {
+          "description": "Your AbuseIPDB API key from https://www.abuseipdb.com/api",
+          "required": true,
+          "type": "string"
+        }
+      },
+      "capabilities": {
+        "tools": [
+          {
+            "name": "check_ip",
+            "description": "Check an IP address for abuse reports using AbuseIPDB",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "ipAddress": {
+                  "type": "string",
+                  "description": "A valid IPv4 or IPv6 address to check",
+                  "pattern": "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::1$|^::$"
+                },
+                "maxAgeInDays": {
+                  "type": "integer",
+                  "description": "Only return reports within the last x days (1-365)",
+                  "minimum": 1,
+                  "maximum": 365,
+                  "default": 30
+                },
+                "verbose": {
+                  "type": "boolean",
+                  "description": "Include detailed reports in the response",
+                  "default": false
+                }
+              },
+              "required": ["ipAddress"]
+            },
+            "examples": [
+              {
+                "description": "Check a suspicious IP with verbose output",
+                "parameters": {
+                  "ipAddress": "118.25.6.39",
+                  "maxAgeInDays": 90,
+                  "verbose": true
+                }
+              },
+              {
+                "description": "Quick check of an IP address",
+                "parameters": {
+                  "ipAddress": "192.168.1.100"
+                }
+              }
+            ]
+          },
+          {
+            "name": "report_ip",
+            "description": "Report an abusive IP address to AbuseIPDB",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "ip": {
+                  "type": "string",
+                  "description": "A valid IPv4 or IPv6 address to report",
+                  "pattern": "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::1$|^::$"
+                },
+                "categories": {
+                  "type": "string",
+                  "description": "Comma separated category IDs (e.g., '18,22'). Common categories: 18=Brute Force, 22=SSH, 21=FTP Brute Force, 11=Comment Spam, 10=Email Spam, 5=Mail Server, 6=Hacking, 15=Port Scan",
+                  "pattern": "^\\d+(,\\d+)*$"
+                },
+                "comment": {
+                  "type": "string",
+                  "description": "Descriptive text of the attack (no PII). Example: 'SSH login attempts with user root'",
+                  "maxLength": 1024
+                },
+                "timestamp": {
+                  "type": "string",
+                  "description": "ISO 8601 datetime of the attack (optional). Example: '2023-10-18T11:25:11-04:00'",
+                  "format": "date-time"
+                }
+              },
+              "required": ["ip", "categories"]
+            },
+            "examples": [
+              {
+                "description": "Report SSH brute force attack",
+                "parameters": {
+                  "ip": "192.168.1.100",
+                  "categories": "18,22",
+                  "comment": "SSH brute force attempts detected",
+                  "timestamp": "2023-10-18T11:25:11-04:00"
+                }
+              },
+              {
+                "description": "Report email spam",
+                "parameters": {
+                  "ip": "203.0.113.1",
+                  "categories": "10",
+                  "comment": "Sending spam emails to multiple recipients"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "python": {
+        "module": "src.server",
+        "main_function": "main",
+        "virtual_env": {
+          "recommended": true,
+          "requirements_file": "requirements.txt"
+        },
+        "installation": {
+          "pip": "pip install -r requirements.txt",
+          "poetry": "poetry install",
+          "conda": "conda env create -f environment.yml"
+        }
+      },
+      "rateLimits": {
+        "description": "AbuseIPDB API rate limits vary by subscription tier",
+        "limits": {
+          "standard": {
+            "check": "1,000 requests/day",
+            "report": "1,000 requests/day"
+          },
+          "webmaster": {
+            "check": "3,000 requests/day",
+            "report": "3,000 requests/day"
+          },
+          "supporter": {
+            "check": "5,000 requests/day",
+            "report": "1,000 requests/day"
+          },
+          "basic_subscription": {
+            "check": "10,000 requests/day",
+            "report": "10,000 requests/day"
+          },
+          "premium_subscription": {
+            "check": "50,000 requests/day",
+            "report": "50,000 requests/day"
+          }
+        }
+      },
+      "documentation": {
+        "usage": "This Python MCP server provides integration with the AbuseIPDB API for checking IP reputation and reporting malicious IPs.",
+        "setup": [
+          "1. Get an API key from https://www.abuseipdb.com/api",
+          "2. Create a virtual environment: python -m venv venv",
+          "3. Activate virtual environment: source venv/bin/activate (Linux/macOS) or venv\\Scripts\\activate (Windows)",
+          "4. Install dependencies: pip install -r requirements.txt",
+          "5. Set the ABUSEIPDB_API_KEY environment variable",
+          "6. Run the server: python src/server.py"
+        ],
+        "security": "⚠️ Important: Strip any personally identifiable information (PII) from comments when reporting IPs.",
+        "python": {
+          "requirements": [
+            "Python 3.8 or higher",
+            "Virtual environment recommended",
+            "Dependencies listed in requirements.txt"
+          ],
+          "features": [
+            "Async/await support for better performance",
+            "Type hints for better code quality",
+            "Pydantic for data validation",
+            "httpx for modern HTTP client",
+            "Comprehensive error handling"
+          ]
+        },
+        "categories": {
+          "3": "Fraud Orders",
+          "4": "DDoS Attack",
+          "5": "FTP Brute-Force",
+          "6": "Ping of Death",
+          "7": "Phishing",
+          "8": "Fraud VoIP",
+          "9": "Open Proxy",
+          "10": "Web Spam",
+          "11": "Email Spam",
+          "12": "Blog Spam",
+          "13": "VPN IP",
+          "14": "Port Scan",
+          "15": "Hacking",
+          "16": "SQL Injection",
+          "17": "Spoofing",
+          "18": "Brute-Force",
+          "19": "Bad Web Bot",
+          "20": "Exploited Host",
+          "21": "Web App Attack",
+          "22": "SSH",
+          "23": "IoT Targeted"
+        }
+      }
+    }
+  }
+} 

@@ -1,0 +1,220 @@
+{
+  "examples": {
+    "local_python": {
+      "description": "Local Python MCP server",
+      "config": {
+        "mcpServers": {
+          "abuseipdb": {
+            "command": "python",
+            "args": ["src/server.py"],
+            "env": {
+              "ABUSEIPDB_API_KEY": "your_api_key_here"
+            }
+          }
+        }
+      }
+    },
+    "local_docker": {
+      "description": "Local Docker container with Python server",
+      "config": {
+        "mcpServers": {
+          "abuseipdb": {
+            "command": "docker",
+            "args": [
+              "run", "--rm", "-i",
+              "--name", "abuseipdb-mcp-client",
+              "-e", "ABUSEIPDB_API_KEY",
+              "abuseipdb-mcp-server:latest"
+            ]
+          }
+        }
+      }
+    },
+    "docker_with_explicit_key": {
+      "description": "Docker container with explicit API key (not recommended for production)",
+      "config": {
+        "mcpServers": {
+          "abuseipdb": {
+            "command": "docker",
+            "args": [
+              "run", "--rm", "-i",
+              "--name", "abuseipdb-mcp-client",
+              "-e", "ABUSEIPDB_API_KEY=your_api_key_here",
+              "abuseipdb-mcp-server:latest"
+            ]
+          }
+        }
+      }
+    },
+    "docker_compose": {
+      "description": "Using Docker Compose for container management",
+      "config": {
+        "mcpServers": {
+          "abuseipdb": {
+            "command": "docker-compose",
+            "args": [
+              "-f", "/path/to/docker-compose.yml",
+              "run", "--rm",
+              "abuseipdb-mcp"
+            ],
+            "cwd": "/path/to/abuseipdb-mcp-server"
+          }
+        }
+      }
+    },
+    "registry_image": {
+      "description": "Using image from Docker registry",
+      "config": {
+        "mcpServers": {
+          "abuseipdb": {
+            "command": "docker",
+            "args": [
+              "run", "--rm", "-i",
+              "--name", "abuseipdb-mcp-client",
+              "-e", "ABUSEIPDB_API_KEY",
+              "your-registry.com/abuseipdb-mcp-server:latest"
+            ]
+          }
+        }
+      }
+    },
+    "with_volume_mounts": {
+      "description": "Docker container with log volume mounting",
+      "config": {
+        "mcpServers": {
+          "abuseipdb": {
+            "command": "docker",
+            "args": [
+              "run", "--rm", "-i",
+              "--name", "abuseipdb-mcp-client",
+              "-e", "ABUSEIPDB_API_KEY",
+              "-v", "./logs:/app/logs",
+              "abuseipdb-mcp-server:latest"
+            ]
+          }
+        }
+      }
+    },
+    "with_network": {
+      "description": "Docker container with custom network",
+      "config": {
+        "mcpServers": {
+          "abuseipdb": {
+            "command": "docker",
+            "args": [
+              "run", "--rm", "-i",
+              "--name", "abuseipdb-mcp-client",
+              "--network", "mcp-network",
+              "-e", "ABUSEIPDB_API_KEY",
+              "abuseipdb-mcp-server:latest"
+            ]
+          }
+        }
+      }
+    },
+    "production_ready": {
+      "description": "Production-ready configuration with resource limits",
+      "config": {
+        "mcpServers": {
+          "abuseipdb": {
+            "command": "docker",
+            "args": [
+              "run", "--rm", "-i",
+              "--name", "abuseipdb-mcp-prod",
+              "--memory", "128m",
+              "--cpus", "0.5",
+              "--restart", "unless-stopped",
+              "-e", "ABUSEIPDB_API_KEY",
+              "-v", "/var/log/abuseipdb:/app/logs",
+              "your-registry.com/abuseipdb-mcp-server:latest"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "claude_desktop_examples": {
+    "python_local": {
+      "description": "Claude Desktop with local Python server",
+      "file_location": "~/Library/Application Support/Claude/claude_desktop_config.json",
+      "config": {
+        "mcpServers": {
+          "abuseipdb": {
+            "command": "python",
+            "args": ["path/to/abuseipdb-mcp-server/src/server.py"],
+            "env": {
+              "ABUSEIPDB_API_KEY": "your_api_key_here"
+            }
+          }
+        }
+      }
+    },
+    "docker_basic": {
+      "description": "Basic Docker configuration for Claude Desktop",
+      "file_location": "~/Library/Application Support/Claude/claude_desktop_config.json",
+      "config": {
+        "mcpServers": {
+          "abuseipdb": {
+            "command": "docker",
+            "args": [
+              "run", "--rm", "-i",
+              "--name", "abuseipdb-claude",
+              "-e", "ABUSEIPDB_API_KEY",
+              "abuseipdb-mcp-server:latest"
+            ]
+          }
+        }
+      }
+    },
+    "with_environment_file": {
+      "description": "Claude Desktop with environment file",
+      "config": {
+        "mcpServers": {
+          "abuseipdb": {
+            "command": "docker",
+            "args": [
+              "run", "--rm", "-i",
+              "--name", "abuseipdb-claude",
+              "--env-file", "/path/to/.env",
+              "abuseipdb-mcp-server:latest"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "kubernetes_examples": {
+    "job_based": {
+      "description": "Kubernetes Job for one-time MCP server execution",
+      "config": {
+        "mcpServers": {
+          "abuseipdb": {
+            "command": "kubectl",
+            "args": [
+              "run", "abuseipdb-mcp-client",
+              "--image=abuseipdb-mcp-server:latest",
+              "--rm", "-i", "--restart=Never",
+              "--env=ABUSEIPDB_API_KEY",
+              "--"
+            ]
+          }
+        }
+      }
+    },
+    "deployment_based": {
+      "description": "Kubernetes Deployment with service",
+      "config": {
+        "mcpServers": {
+          "abuseipdb": {
+            "command": "kubectl",
+            "args": [
+              "exec", "-i",
+              "deployment/abuseipdb-mcp-deployment",
+              "--", "python", "src/server.py"
+            ]
+          }
+        }
+      }
+    }
+  }
+} 

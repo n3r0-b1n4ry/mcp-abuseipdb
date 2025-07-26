@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  abuseipdb-mcp:
+    build: .
+    container_name: abuseipdb-mcp-server
+    environment:
+      - ABUSEIPDB_API_KEY=${ABUSEIPDB_API_KEY}
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    volumes:
+      # Optional: Mount logs directory if you want to persist logs
+      - ./logs:/app/logs
+    networks:
+      - mcp-network
+    labels:
+      - "com.docker.compose.project=abuseipdb-mcp"
+      - "description=AbuseIPDB MCP Server (Python)"
+
+networks:
+  mcp-network:
+    driver: bridge 
