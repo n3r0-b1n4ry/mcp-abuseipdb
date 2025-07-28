@@ -378,3 +378,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - ✅ **Attribution** - keep the copyright notice when redistributing
 
 The MIT License is one of the most permissive open source licenses, making this project easy to integrate into your cybersecurity toolkit. 
+
+---
+
+**Made with ❤️ for the MCP community** 
