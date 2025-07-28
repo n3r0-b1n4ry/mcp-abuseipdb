@@ -17,4 +17,5 @@ coverage
 .idea
 *.swp
 *.swo
-*~ 
+*~
+*__pycache__*
