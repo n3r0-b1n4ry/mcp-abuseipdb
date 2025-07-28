@@ -2,6 +2,11 @@
 
 A Model Context Protocol (MCP) server for integrating with the AbuseIPDB API. This server provides two main functions: checking IP addresses for abuse reports and reporting abusive IP addresses.
 
+[![GitHub](https://img.shields.io/badge/GitHub%20Pages-121013?logo=github&logoColor=white)](https://github.com/n3r0-b1n4ry/mcp-abuseipdb)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](https://hub.docker.com/r/n3r0b1n4ry/abuseipdb-mcp)
+[![MCP](https://img.shields.io/badge/MCP-Compatible-green?logo=anthropic)](https://modelcontextprotocol.io/)
+[![Python](https://img.shields.io/badge/Python-3.11%2B-blue?logo=python)](https://python.org/)
+
 ![MCP Integrations](images/MCP_Intergrations.png)
 
 ## Features
