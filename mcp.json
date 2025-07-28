@@ -3,6 +3,7 @@
     "abuseipdb-python": {
       "command": "python",
       "args": ["src/server.py"],
+      "cwd": "your_directory_here",
       "env": {
         "ABUSEIPDB_API_KEY": "your_api_key_here"
       }

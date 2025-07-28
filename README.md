@@ -10,10 +10,10 @@ A Model Context Protocol (MCP) server for integrating with the AbuseIPDB API. Th
 - Rate limit handling with detailed error messages
 - Comprehensive response formatting
 - Input validation for IP addresses and parameters
-- **Docker support** for easy deployment and containerization
+- **Alpine Docker support** for lightweight deployment and containerization
 - **MCP configuration** for seamless integration with MCP clients
 - **Async/await support** for better performance
-- **Type hints** for better code quality
+- **Clean architecture** with simplified error handling
 
 ## Setup
 
@@ -123,15 +123,15 @@ The server exposes two tools to MCP clients:
 
 1. **Build the image:**
    ```bash
-   docker build -t abuseipdb-mcp-server .
+   docker build -t abuseipdb-mcp .
    ```
 
 2. **Run the container:**
    ```bash
    docker run -it --rm \
-     --name abuseipdb-mcp-server \
+     --name abuseipdb-mcp \
      -e ABUSEIPDB_API_KEY="your_api_key_here" \
-     abuseipdb-mcp-server
+     abuseipdb-mcp
    ```
 
 ### Docker Compose
@@ -154,9 +154,9 @@ The server exposes two tools to MCP clients:
 
 ### Docker Features
 
-- **Lightweight**: Uses Python 3.11 slim base image
-- **Secure**: Runs as non-root user
-- **Health checks**: Built-in container health monitoring
+- **Ultra-lightweight**: Uses Python 3.11 Alpine base image for minimal size
+- **Secure**: Runs as non-root user with restricted permissions
+- **Fast builds**: Alpine's small footprint reduces build and deployment times
 - **Environment validation**: Validates API key on startup
 - **Cross-platform**: Works on Linux, macOS, and Windows
 
@@ -169,7 +169,7 @@ For Claude Desktop, add this to your configuration file:
 ```json
 {
   "mcpServers": {
-    "abuseipdb": {
+    "abuseipdb-python": {
       "command": "python",
       "args": ["path/to/abuseipdb-mcp-server/src/server.py"],
       "env": {
@@ -184,13 +184,13 @@ Or using Docker:
 ```json
 {
   "mcpServers": {
-    "abuseipdb": {
+    "abuseipdb-docker": {
       "command": "docker",
       "args": [
         "run", "--rm", "-i",
-        "--name", "abuseipdb-claude",
+        "--name", "abuseipdb-mcp-client",
         "-e", "ABUSEIPDB_API_KEY",
-        "abuseipdb-mcp-server:latest"
+        "abuseipdb-mcp"
       ]
     }
   }
@@ -255,6 +255,7 @@ The server provides comprehensive error handling for:
 - Invalid parameters
 - Network errors
 - API validation errors
+- MCP protocol validation issues (handled gracefully)
 
 ## Security Notes
 
@@ -280,7 +281,7 @@ For a complete list, visit the [AbuseIPDB categories page](https://www.abuseipdb
 
 - `python src/server.py` - Start the MCP server
 - `python test/test_server.py` - Run comprehensive tests
-- `docker build -t abuseipdb-mcp-server .` - Build Docker image
+- `docker build -t abuseipdb-mcp .` - Build Alpine Docker image
 - `docker-compose up --build` - Start with Docker Compose
 
 ### Project Structure
@@ -297,10 +298,9 @@ abuseipdb-mcp-server/
 ├── abuseipdb_api_docs/           # Original API documentation
 ├── requirements.txt              # Python dependencies
 ├── pyproject.toml                # Python project configuration
-├── mcp.json                      # MCP server configuration
+├── mcp.json                      # MCP server configuration (Python)
 ├── mcp-docker.json               # Docker-specific MCP configuration
-├── mcp-schema.json               # JSON schema for MCP config
-├── Dockerfile                    # Docker container definition
+├── Dockerfile                    # Alpine Docker container definition
 ├── docker-compose.yml            # Docker Compose configuration
 ├── docker-run.sh                 # Helper script (Linux/macOS)
 ├── docker-run.bat                # Helper script (Windows)
@@ -308,14 +308,33 @@ abuseipdb-mcp-server/
 └── README.md                     # This file
 ```
 
+## Architecture
+
+### Server Implementation
+
+The MCP server is built with:
+- **Simplified Design**: Clean, minimal implementation without complex error suppression
+- **Alpine Docker**: Ultra-lightweight container based on Alpine Linux
+- **Async Operations**: Full async/await support for better performance
+- **Direct Protocol Handling**: Let the MCP SDK handle protocol validation naturally
+- **Robust Validation**: Input validation for IP addresses and categories
+
+### Connection Stability
+
+The server is designed for maximum stability:
+- **Clean Protocol Implementation**: Follows MCP standards without interference
+- **Minimal Dependencies**: Reduces potential points of failure
+- **Error Recovery**: Graceful handling of API and network errors
+- **Resource Efficiency**: Alpine base keeps memory and CPU usage low
+
 ## Production Deployment
 
 ### Docker Registry
 
 1. **Tag and push to registry:**
    ```bash
-   docker tag abuseipdb-mcp-server your-registry/abuseipdb-mcp-server:latest
-   docker push your-registry/abuseipdb-mcp-server:latest
+   docker tag abuseipdb-mcp your-registry/abuseipdb-mcp:latest
+   docker push your-registry/abuseipdb-mcp:latest
    ```
 
 2. **Deploy on production:**
@@ -324,7 +343,7 @@ abuseipdb-mcp-server/
      --name abuseipdb-mcp-prod \
      --restart unless-stopped \
      -e ABUSEIPDB_API_KEY="your_api_key_here" \
-     your-registry/abuseipdb-mcp-server:latest
+     your-registry/abuseipdb-mcp:latest
    ```
 
 ### Kubernetes Deployment
@@ -333,20 +352,20 @@ abuseipdb-mcp-server/
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: abuseipdb-mcp-server
+  name: abuseipdb-mcp
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: abuseipdb-mcp-server
+      app: abuseipdb-mcp
   template:
     metadata:
       labels:
-        app: abuseipdb-mcp-server
+        app: abuseipdb-mcp
     spec:
       containers:
-      - name: abuseipdb-mcp-server
-        image: abuseipdb-mcp-server:latest
+      - name: abuseipdb-mcp
+        image: abuseipdb-mcp:latest
         command: ["python", "src/server.py"]
         env:
         - name: ABUSEIPDB_API_KEY
@@ -354,6 +373,39 @@ spec:
             secretKeyRef:
               name: abuseipdb-secret
               key: api-key
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Connection Closed Errors**: 
+   - Ensure API key is properly set
+   - Check that the server starts without import errors
+   - Verify MCP client configuration
+
+2. **Docker Build Issues**:
+   - Make sure you're using the Alpine-compatible syntax
+   - Check that all required files are present
+
+3. **API Rate Limits**:
+   - Monitor your usage at [AbuseIPDB dashboard](https://www.abuseipdb.com/account)
+   - Implement appropriate retry logic in your client
+
+### Debug Mode
+
+To run with additional debugging:
+```bash
+# Set debug environment
+export MCP_DEBUG=1
+python src/server.py
 ```
 
 ## License

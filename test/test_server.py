@@ -226,4 +226,5 @@ async def main():
 
 
 if __name__ == "__main__":
+    os.environ["ABUSEIPDB_API_KEY"] = "fd52070439c78dc53529ebee94691c50a7f537c213442d553612b57ae4d7739d279884ff786833ea"
     asyncio.run(main()) 
