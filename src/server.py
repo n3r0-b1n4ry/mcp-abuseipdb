@@ -9,7 +9,7 @@ from urllib.parse import urlencode
 import httpx
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
-from mcp.types import CallToolResult, TextContent
+from mcp.types import CallToolResult, TextContent, Tool
 
 
 class AbuseIPDBServer:
@@ -35,10 +35,10 @@ class AbuseIPDBServer:
         @self.server.list_tools()
         async def list_tools():
             return [
-                {
-                    "name": "check_ip",
-                    "description": "Check an IP address for abuse reports using AbuseIPDB",
-                    "inputSchema": {
+                Tool(
+                    name="check_ip",
+                    description="Check an IP address for abuse reports using AbuseIPDB",
+                    inputSchema={
                         "type": "object",
                         "properties": {
                             "ipAddress": {
@@ -60,11 +60,11 @@ class AbuseIPDBServer:
                         },
                         "required": ["ipAddress"],
                     },
-                },
-                {
-                    "name": "report_ip",
-                    "description": "Report an abusive IP address to AbuseIPDB",
-                    "inputSchema": {
+                ),
+                Tool(
+                    name="report_ip",
+                    description="Report an abusive IP address to AbuseIPDB",
+                    inputSchema={
                         "type": "object",
                         "properties": {
                             "ip": {
@@ -86,7 +86,7 @@ class AbuseIPDBServer:
                         },
                         "required": ["ip", "categories"],
                     },
-                },
+                ),
             ]
 
         @self.server.call_tool()

@@ -14,6 +14,7 @@ A Model Context Protocol (MCP) server for integrating with the AbuseIPDB API. Th
 - **MCP configuration** for seamless integration with MCP clients
 - **Async/await support** for better performance
 - **Clean architecture** with simplified error handling
+- **Proper Tool objects** for full MCP SDK compliance
 
 ## Setup
 
@@ -67,7 +68,7 @@ This server includes a complete MCP configuration file (`mcp.json`) that defines
    ```json
    {
      "mcpServers": {
-       "abuseipdb": {
+       "abuseipdb-python": {
          "command": "python",
          "args": ["path/to/abuseipdb-mcp-server/src/server.py"],
          "env": {
@@ -110,24 +111,9 @@ The server exposes two tools to MCP clients:
    set ABUSEIPDB_API_KEY=your_api_key_here
    ```
 
-2. **Run with helper script:**
-   ```bash
-   # Linux/macOS
-   ./docker-run.sh
-   
-   # Windows
-   docker-run.bat
-   ```
-
-### Manual Docker Commands
-
-1. **Build the image:**
+2. **Build and run:**
    ```bash
    docker build -t abuseipdb-mcp .
-   ```
-
-2. **Run the container:**
-   ```bash
    docker run -it --rm \
      --name abuseipdb-mcp \
      -e ABUSEIPDB_API_KEY="your_api_key_here" \
@@ -138,8 +124,7 @@ The server exposes two tools to MCP clients:
 
 1. **Create a `.env` file:**
    ```bash
-   cp env.example .env
-   # Edit .env and set your API key
+   echo "ABUSEIPDB_API_KEY=your_api_key_here" > .env
    ```
 
 2. **Start with Docker Compose:**
@@ -154,11 +139,12 @@ The server exposes two tools to MCP clients:
 
 ### Docker Features
 
-- **Ultra-lightweight**: Uses Python 3.11 Alpine base image for minimal size
+- **Ultra-lightweight**: Uses Python 3.11 Alpine base image for minimal size (~50MB)
 - **Secure**: Runs as non-root user with restricted permissions
 - **Fast builds**: Alpine's small footprint reduces build and deployment times
 - **Environment validation**: Validates API key on startup
 - **Cross-platform**: Works on Linux, macOS, and Windows
+- **Production ready**: Optimized for containerized deployments
 
 ### Claude Desktop Integration
 
@@ -289,7 +275,6 @@ For a complete list, visit the [AbuseIPDB categories page](https://www.abuseipdb
 ```
 abuseipdb-mcp-server/
 ├── src/
-│   ├── __init__.py               # Python package initialization
 │   └── server.py                 # Main Python MCP server implementation
 ├── test/
 │   └── test_server.py            # Python test suite
@@ -297,14 +282,10 @@ abuseipdb-mcp-server/
 │   └── mcp-client-configs.json   # Example MCP client configurations
 ├── abuseipdb_api_docs/           # Original API documentation
 ├── requirements.txt              # Python dependencies
-├── pyproject.toml                # Python project configuration
 ├── mcp.json                      # MCP server configuration (Python)
 ├── mcp-docker.json               # Docker-specific MCP configuration
 ├── Dockerfile                    # Alpine Docker container definition
 ├── docker-compose.yml            # Docker Compose configuration
-├── docker-run.sh                 # Helper script (Linux/macOS)
-├── docker-run.bat                # Helper script (Windows)
-├── env.example                   # Environment variables example
 └── README.md                     # This file
 ```
 
@@ -315,6 +296,7 @@ abuseipdb-mcp-server/
 The MCP server is built with:
 - **Simplified Design**: Clean, minimal implementation without complex error suppression
 - **Alpine Docker**: Ultra-lightweight container based on Alpine Linux
+- **Proper Tool Objects**: Uses MCP SDK `Tool` class for full compatibility
 - **Async Operations**: Full async/await support for better performance
 - **Direct Protocol Handling**: Let the MCP SDK handle protocol validation naturally
 - **Robust Validation**: Input validation for IP addresses and categories
@@ -326,6 +308,15 @@ The server is designed for maximum stability:
 - **Minimal Dependencies**: Reduces potential points of failure
 - **Error Recovery**: Graceful handling of API and network errors
 - **Resource Efficiency**: Alpine base keeps memory and CPU usage low
+- **Tool Object Compliance**: Proper `Tool` objects prevent attribute errors
+
+### Recent Fixes
+
+**v1.1.0 - Docker MCP Integration Fix**
+- ✅ **Fixed "'dict' object has no attribute 'name'" error**: Changed from dictionary-based tool definitions to proper `Tool` objects
+- ✅ **Improved MCP SDK compliance**: Using `from mcp.types import Tool` for proper tool registration
+- ✅ **Enhanced Docker testing**: Added comprehensive testing inside Docker containers
+- ✅ **Streamlined build process**: Removed unnecessary test files from production image
 
 ## Production Deployment
 
@@ -375,27 +366,32 @@ spec:
               key: api-key
         resources:
           requests:
+            memory: "32Mi"
+            cpu: "25m"
+          limits:
             memory: "64Mi"
             cpu: "50m"
-          limits:
-            memory: "128Mi"
-            cpu: "100m"
 ```
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **Connection Closed Errors**: 
+1. **"'dict' object has no attribute 'name'" Error**: 
+   - ✅ **Fixed in v1.1.0**: This error has been resolved by using proper `Tool` objects
+   - If you still see this, ensure you're using the latest version
+
+2. **Connection Closed Errors**: 
    - Ensure API key is properly set
    - Check that the server starts without import errors
    - Verify MCP client configuration
 
-2. **Docker Build Issues**:
+3. **Docker Build Issues**:
    - Make sure you're using the Alpine-compatible syntax
    - Check that all required files are present
+   - Use `docker build --no-cache` if experiencing cache issues
 
-3. **API Rate Limits**:
+4. **API Rate Limits**:
    - Monitor your usage at [AbuseIPDB dashboard](https://www.abuseipdb.com/account)
    - Implement appropriate retry logic in your client
 
@@ -406,6 +402,20 @@ To run with additional debugging:
 # Set debug environment
 export MCP_DEBUG=1
 python src/server.py
+```
+
+### Docker Testing
+
+To test the server inside Docker:
+```bash
+# Build and test
+docker build -t abuseipdb-mcp .
+docker run --rm -e ABUSEIPDB_API_KEY=test-key abuseipdb-mcp python -c "
+import sys; sys.path.insert(0, '/app/src'); 
+from server import AbuseIPDBServer; 
+server = AbuseIPDBServer(); 
+print('✅ Server created successfully')
+"
 ```
 
 ## License

@@ -23,7 +23,6 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 # Copy source code
 COPY src/ ./src/
-COPY pyproject.toml .
 
 # Create non-root user for security (Alpine/BusyBox syntax)
 RUN addgroup -g 1001 -S python && \
