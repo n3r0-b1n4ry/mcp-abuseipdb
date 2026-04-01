@@ -7,15 +7,16 @@ WORKDIR /app
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
+ENV MCP_TRANSPORT=stdio
 
-# Copy requirements first for better caching
+# Copy project files for pip install
+COPY pyproject.toml .
 COPY requirements.txt .
-
-# Install Python dependencies, no cache, no upgrade pip, and install requirements
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy source code
+COPY README.md .
 COPY src/ ./src/
+
+# Install the package (creates mcp-abuseipdb entry point)
+RUN pip install --no-cache-dir .
 
 # Create non-root user for security (Alpine/BusyBox syntax)
 RUN addgroup -g 1001 -S python && \
@@ -27,5 +28,8 @@ RUN chown -R mcp:python /app
 # Switch to non-root user
 USER mcp
 
-# Start the Python MCP server
-CMD ["python", "src/server.py"] 
+# Expose port for HTTP transport
+EXPOSE 8000
+
+# Start via the installed entry point
+CMD ["mcp-abuseipdb"]

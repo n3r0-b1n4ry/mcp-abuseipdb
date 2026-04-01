@@ -1,125 +1,88 @@
-# AbuseIPDB MCP Server (Python)
+# AbuseIPDB MCP Server
 
-A Model Context Protocol (MCP) server for integrating with the AbuseIPDB API. This server provides two main functions: checking IP addresses for abuse reports and reporting abusive IP addresses.
+A Model Context Protocol (MCP) server for integrating with the [AbuseIPDB](https://www.abuseipdb.com/) API. Query IP abuse reports and submit new reports — directly from your AI assistant.
 
-[![GitHub](https://img.shields.io/badge/GitHub%20Pages-121013?logo=github&logoColor=white)](https://github.com/n3r0-b1n4ry/mcp-abuseipdb)
-[![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](https://hub.docker.com/r/n3r0b1n4ry/abuseipdb-mcp)
+[![PyPI](https://img.shields.io/pypi/v/mcp-abuseipdb?logo=pypi&logoColor=white&label=PyPI)](https://pypi.org/project/mcp-abuseipdb/)
+[![Python](https://img.shields.io/pypi/pyversions/mcp-abuseipdb?logo=python&logoColor=white)](https://pypi.org/project/mcp-abuseipdb/)
 [![MCP](https://img.shields.io/badge/MCP-Compatible-green?logo=anthropic)](https://modelcontextprotocol.io/)
-[![Python](https://img.shields.io/badge/Python-3.11%2B-blue?logo=python)](https://python.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](https://hub.docker.com/r/n3r0b1n4ry/abuseipdb-mcp)
+[![License](https://img.shields.io/pypi/l/mcp-abuseipdb)](LICENSE)
+[![GitHub](https://img.shields.io/badge/GitHub-Source-121013?logo=github&logoColor=white)](https://github.com/n3r0-b1n4ry/mcp-abuseipdb)
+
+📦 **Install:** `uvx mcp-abuseipdb` · `pip install mcp-abuseipdb` · [PyPI](https://pypi.org/project/mcp-abuseipdb/)
 
 ![MCP Integrations](images/MCP_Intergrations.png)
 
 ## Features
 
-- **Check IP**: Query AbuseIPDB for abuse reports on a specific IP address with verbose details by default
-- **Report IP**: Submit abuse reports for malicious IP addresses  
-- **Complete Categories Mapping**: Full 1-23 category mapping with human-readable names (including DNS Compromise, DNS Poisoning, etc.)
-- **Optimized Return Values**: Direct TextContent list returns for better MCP SDK compatibility
-- **Rate Limit Handling**: Detailed error messages with retry information
-- **Comprehensive Response Formatting**: Clean, readable output without markdown formatting
-- **Input Validation**: Robust validation for IP addresses and parameters
-- **Alpine Docker Support**: Lightweight deployment and containerization
-- **MCP Configuration**: Seamless integration with MCP clients
-- **Async/Await Support**: High-performance asynchronous operations
-- **Clean Architecture**: Simplified error handling and response structure
-- **Latest MCP SDK**: Compatible with MCP SDK 1.12.2+
+- 🔍 **Check IP** — Query AbuseIPDB for abuse reports on any IPv4/IPv6 address with verbose details
+- 🚨 **Report IP** — Submit abuse reports for malicious IP addresses
+- 🚀 **Zero-Install with uvx** — Run instantly via `uvx mcp-abuseipdb`, no setup needed
+- 🌐 **Multiple Transports** — Stdio (default) and Streamable HTTP (MCP spec 2025-03-26)
+- 📦 **PyPI Package** — Install via `pip install mcp-abuseipdb`
+- 🐳 **Docker Ready** — Alpine-based lightweight container
+- ⚡ **Async/Await** — High-performance asynchronous operations
+- 🗂️ **Full Categories** — Complete 1-23 category mapping with human-readable names
+- 🔄 **Rate Limit Handling** — Automatic retry information on 429 responses
+- ✅ **Input Validation** — Robust IPv4/IPv6 and parameter validation
+- 🧹 **Clean Output** — Readable text output optimized for MCP clients
 
-## Recent Updates (v1.2.0)
+## Quick Start
 
-- ✅ **Fixed MCP SDK Compatibility**: Updated to work with MCP SDK 1.12.2
-- ✅ **Improved Return Values**: Changed from `CallToolResult` to direct `TextContent` list returns
-- ✅ **Enhanced Categories**: Added missing categories 1 (DNS Compromise) and 2 (DNS Poisoning)
-- ✅ **Better Default Settings**: Verbose mode enabled by default for detailed reports
-- ✅ **Cleaner Output**: Removed markdown formatting for better readability in MCP clients
-- ✅ **Updated Dependencies**: Upgraded to latest stable versions
+### Using uvx (Recommended)
+
+The fastest way — no clone, no install, no virtual environment:
+
+```bash
+# Run directly (stdio transport)
+ABUSEIPDB_API_KEY="your_api_key_here" uvx mcp-abuseipdb
+
+# With HTTP transport
+ABUSEIPDB_API_KEY="your_api_key_here" uvx mcp-abuseipdb --transport http --port 8000
+```
+
+> **Prerequisite:** [uv](https://docs.astral.sh/uv/) must be installed.  
+> Install: `pip install uv` · `curl -LsSf https://astral.sh/uv/install.sh | sh` · [Windows](https://docs.astral.sh/uv/getting-started/installation/)
+
+### Using pip
+
+```bash
+pip install mcp-abuseipdb
+
+export ABUSEIPDB_API_KEY="your_api_key_here"
+mcp-abuseipdb
+```
+
+### Using Docker
+
+```bash
+docker build -t abuseipdb-mcp .
+docker run -it --rm -e ABUSEIPDB_API_KEY="your_api_key_here" abuseipdb-mcp
+```
 
 ## Live Demo
 
 ### IP Reputation Check and Advanced Analysis
 ![MCP with LLM Test 1](images/MCP_with_LLM_Test1.png)
 
-*Example showing the `check_ip` function being used to analyze a suspicious IP address, displaying comprehensive abuse reports with categories, geolocation, and threat intelligence.*
+*Example: `check_ip` analyzing a suspicious IP address with comprehensive abuse reports, categories, geolocation, and threat intelligence.*
 
 ![MCP with LLM Test 2](images/MCP_with_LLM_Test2.png)
 
-*Advanced usage example demonstrating detailed IP analysis with verbose reporting, showing ISP information, abuse confidence scores, and recent attack patterns.*
+*Advanced usage: detailed IP analysis with verbose reporting, ISP information, abuse confidence scores, and recent attack patterns.*
 
-## Setup
+## MCP Client Configuration
 
-### Prerequisites
+### Claude Desktop — uvx (Recommended)
 
-- Python 3.8 or higher
-- Docker (for containerized deployment)
-- An AbuseIPDB API key (get one at [abuseipdb.com](https://www.abuseipdb.com/api))
+Add to `claude_desktop_config.json`:
 
-### Local Installation
-
-1. Clone or download this repository
-2. Create a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # Linux/macOS
-   # or
-   venv\Scripts\activate     # Windows
-   ```
-
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Set your AbuseIPDB API key as an environment variable:
-   ```bash
-   export ABUSEIPDB_API_KEY="your_api_key_here"
-   ```
-
-### Running the Server
-
-```bash
-python src/server.py
-```
-
-## Docker Deployment
-
-### Quick Start
-
-```bash
-# Build the image
-docker build -t abuseipdb-mcp .
-
-# Run with your API key
-docker run -it --rm -e ABUSEIPDB_API_KEY="your_api_key_here" abuseipdb-mcp
-```
-
-### Docker Compose
-
-```yaml
-version: '3.8'
-services:
-  abuseipdb-mcp:
-    build: .
-    environment:
-      - ABUSEIPDB_API_KEY=your_api_key_here
-    stdin_open: true
-    tty: true
-    restart: unless-stopped
-```
-
-## MCP Client Integration
-
-The images above show real examples of the AbuseIPDB MCP server integrated with Claude Desktop, demonstrating IP reputation analysis and threat intelligence capabilities.
-
-### Claude Desktop Configuration
-
-Add this to your Claude Desktop `claude_desktop_config.json`:
-
-#### Local Python Server
 ```json
 {
   "mcpServers": {
     "abuseipdb": {
-      "command": "python",
-      "args": ["E:/mcp/abuseipdb/src/server.py"],
+      "command": "uvx",
+      "args": ["mcp-abuseipdb"],
       "env": {
         "ABUSEIPDB_API_KEY": "your_api_key_here"
       }
@@ -128,11 +91,40 @@ Add this to your Claude Desktop `claude_desktop_config.json`:
 }
 ```
 
-#### Docker Container
+### Claude Desktop — uvx with HTTP Transport
+
 ```json
 {
   "mcpServers": {
-    "abuseipdb-docker": {
+    "abuseipdb": {
+      "command": "uvx",
+      "args": ["mcp-abuseipdb", "--transport", "http", "--port", "8000"],
+      "env": {
+        "ABUSEIPDB_API_KEY": "your_api_key_here"
+      }
+    }
+  }
+}
+```
+
+### Remote Server (Streamable HTTP)
+
+```json
+{
+  "mcpServers": {
+    "abuseipdb": {
+      "url": "http://your-server:8000/mcp"
+    }
+  }
+}
+```
+
+### Docker (Stdio)
+
+```json
+{
+  "mcpServers": {
+    "abuseipdb": {
       "command": "docker",
       "args": [
         "run", "-i", "--rm",
@@ -144,18 +136,42 @@ Add this to your Claude Desktop `claude_desktop_config.json`:
 }
 ```
 
+### Docker (Streamable HTTP)
+
+```bash
+# Start container
+docker run -d --rm \
+  -e ABUSEIPDB_API_KEY="your_api_key_here" \
+  -e MCP_TRANSPORT=http \
+  -p 8000:8000 \
+  abuseipdb-mcp
+```
+
+```json
+{
+  "mcpServers": {
+    "abuseipdb": {
+      "url": "http://localhost:8000/mcp"
+    }
+  }
+}
+```
+
+> 📁 More config examples: [`examples/mcp-client-configs.json`](examples/mcp-client-configs.json)
+
 ## Available Tools
 
-### 1. check_ip
+### 1. `check_ip`
 
 Check an IP address for abuse reports.
 
-**Parameters:**
-- `ipAddress` (required): IPv4 or IPv6 address to check
-- `maxAgeInDays` (optional): Only return reports within the last x days (1-365, default: 30)
-- `verbose` (optional): Include detailed reports in the response (default: true)
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `ipAddress` | string | ✅ | — | IPv4 or IPv6 address to check |
+| `maxAgeInDays` | integer | — | 30 | Only return reports within the last x days (1-365) |
+| `verbose` | boolean | — | true | Include detailed reports in the response |
 
-**Example:**
+**Example Input:**
 ```json
 {
   "ipAddress": "134.122.87.122",
@@ -164,7 +180,7 @@ Check an IP address for abuse reports.
 }
 ```
 
-**Sample Response:**
+**Example Output:**
 ```
 AbuseIPDB Check Results
 
@@ -177,52 +193,21 @@ ISP: DigitalOcean, LLC
 Usage Type: Data Center/Web Hosting/Transit
 Domain: digitalocean.com
 Total Reports: 15
-
-Recent Reports:
-
-1. Reported: 2024-01-15T10:30:00+00:00
-   Categories: 18 (Brute-Force), 22 (SSH)
-
-2. Reported: 2024-01-14T15:45:00+00:00
-   Categories: 14 (Port Scan), 15 (Hacking)
+Categories: Brute-Force, SSH, Port Scan, Hacking
 ```
 
-### 2. report_ip
+### 2. `report_ip`
 
 Report an abusive IP address to AbuseIPDB.
 
-**Parameters:**
-- `ip` (required): IPv4 or IPv6 address to report
-- `categories` (required): Comma-separated category IDs (e.g., "18,22")
-- `comment` (optional): Descriptive text of the attack (no PII)
-- `timestamp` (optional): ISO 8601 datetime of the attack
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `ip` | string | ✅ | IPv4 or IPv6 address to report |
+| `categories` | string | ✅ | Comma-separated category IDs (e.g., `"18,22"`) |
+| `comment` | string | — | Descriptive text of the attack (no PII) |
+| `timestamp` | string | — | ISO 8601 datetime of the attack |
 
-**Available Categories:**
-- 1: DNS Compromise
-- 2: DNS Poisoning  
-- 3: Fraud Orders
-- 4: DDoS Attack
-- 5: FTP Brute-Force
-- 6: Ping of Death
-- 7: Phishing
-- 8: Fraud VoIP
-- 9: Open Proxy
-- 10: Web Spam
-- 11: Email Spam
-- 12: Blog Spam
-- 13: VPN IP
-- 14: Port Scan
-- 15: Hacking
-- 16: SQL Injection
-- 17: Spoofing
-- 18: Brute-Force
-- 19: Bad Web Bot
-- 20: Exploited Host
-- 21: Web App Attack
-- 22: SSH
-- 23: IoT Targeted
-
-**Example:**
+**Example Input:**
 ```json
 {
   "ip": "192.168.1.100",
@@ -232,158 +217,199 @@ Report an abusive IP address to AbuseIPDB.
 }
 ```
 
-## Error Handling
+### Abuse Categories
 
-The server handles various error conditions:
+| ID | Category | ID | Category | ID | Category |
+|----|----------|----|---------|----|---------|
+| 1 | DNS Compromise | 9 | Open Proxy | 17 | Spoofing |
+| 2 | DNS Poisoning | 10 | Web Spam | 18 | Brute-Force |
+| 3 | Fraud Orders | 11 | Email Spam | 19 | Bad Web Bot |
+| 4 | DDoS Attack | 12 | Blog Spam | 20 | Exploited Host |
+| 5 | FTP Brute-Force | 13 | VPN IP | 21 | Web App Attack |
+| 6 | Ping of Death | 14 | Port Scan | 22 | SSH |
+| 7 | Phishing | 15 | Hacking | 23 | IoT Targeted |
+| 8 | Fraud VoIP | 16 | SQL Injection | | |
 
-- **Rate Limits**: HTTP 429 responses with retry information
-- **Invalid API Keys**: Clear authentication error messages
-- **Invalid IP Addresses**: Format validation with helpful messages
-- **API Errors**: Detailed error responses with status codes
-- **Network Issues**: Timeout and connection error handling
+## Transport Types
 
-## Rate Limits
+| Transport | Use Case | Protocol |
+|-----------|----------|----------|
+| **stdio** (default) | Local MCP clients (Claude Desktop, etc.) | Standard I/O |
+| **http** | Remote access, multi-client, cloud deploy | Streamable HTTP (MCP spec 2025-03-26) |
 
-AbuseIPDB has the following daily rate limits:
+### Running the Server
 
-| Plan | Check Endpoint | Report Endpoint |
-|------|----------------|-----------------|
-| Free | 1,000 | 100 |
-| Basic | 3,000 | 300 |
-| Premium | 10,000 | 1,000 |
-| Enterprise | 100,000 | 10,000 |
+```bash
+# Stdio (default)
+mcp-abuseipdb
 
-The server automatically handles rate limit responses and provides retry information.
+# HTTP transport
+mcp-abuseipdb --transport http
 
-## Dependencies
+# HTTP with custom host/port
+mcp-abuseipdb --transport http --host 127.0.0.1 --port 3000
 
-- **mcp**: 1.12.2+ - Model Context Protocol SDK
-- **httpx**: 0.27.0+ - Async HTTP client
-- **pydantic**: 2.8.0+ - Data validation
-- **python-dotenv**: 1.0.0+ - Environment variable loading
-
-## Project Structure
-
-```
-abuseipdb/
-├── src/
-│   ├── server.py              # Main entry point for MCP server
-│   └── modules.py             # AbuseIPDBServer class implementation
-├── test/
-│   └── test_server.py         # Comprehensive test suite
-├── examples/
-│   └── mcp-client-configs.json # Example MCP client configurations
-├── images/                    # Screenshots and demo images
-│   ├── MCP_Intergrations.png  # MCP integrations overview
-│   ├── MCP_with_LLM_Test1.png # Live IP analysis example 1
-│   └── MCP_with_LLM_Test2.png # Live IP analysis example 2
-├── sample_check_request.md    # API documentation
-├── error_handling.md          # Error handling guide
-├── Dockerfile                 # Alpine-based Docker image
-├── docker-compose.yml         # Docker Compose configuration
-├── requirements.txt           # Python dependencies
-├── mcp.json                   # MCP server configuration
-├── LICENSE                    # MIT License
-└── README.md                  # This file
+# Via environment variables
+MCP_TRANSPORT=http MCP_PORT=3000 mcp-abuseipdb
 ```
 
-## Testing
+### Testing HTTP Transport
 
-Run the comprehensive test suite:
+```bash
+mcp-abuseipdb --transport http --port 8000
+
+curl -X POST http://localhost:8000/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","method":"initialize","id":1,"params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}'
+```
+
+## Docker Deployment
+
+### Build & Run
+
+```bash
+docker build -t abuseipdb-mcp .
+docker run -it --rm -e ABUSEIPDB_API_KEY="your_api_key_here" abuseipdb-mcp
+```
+
+### Docker Compose
+
+The included `docker-compose.yml` provides two pre-configured services:
+
+```bash
+# Stdio service
+ABUSEIPDB_API_KEY="your_key" docker-compose up abuseipdb-mcp
+
+# HTTP service (exposed on port 8000)
+ABUSEIPDB_API_KEY="your_key" docker-compose up abuseipdb-mcp-http
+```
+
+## Development
+
+### Local Setup
+
+```bash
+git clone https://github.com/n3r0-b1n4ry/mcp-abuseipdb.git
+cd mcp-abuseipdb
+
+python -m venv venv
+source venv/bin/activate   # Linux/macOS
+venv\Scripts\activate      # Windows
+
+pip install -e .
+
+export ABUSEIPDB_API_KEY="your_api_key_here"
+mcp-abuseipdb
+```
+
+### Running Tests
 
 ```bash
 python -m pytest test/test_server.py -v
 ```
 
-Test Docker deployment:
+### Build & Publish
 
 ```bash
-# Build and test
-docker build -t abuseipdb-mcp .
-docker run --rm -e ABUSEIPDB_API_KEY="test" abuseipdb-mcp python -c "
-import sys
-sys.path.append('/app/src')
-from server import AbuseIPDBServer
-print('✅ Server imports successfully')
-"
+python -m build
+python -m twine upload dist/*
 ```
 
-## Recent Fixes (v1.2.0)
+## Error Handling
 
-### MCP SDK Compatibility
-- **Fixed**: Updated to MCP SDK 1.12.2 for better compatibility
-- **Fixed**: Changed return values from `CallToolResult` objects to direct `TextContent` lists
-- **Fixed**: Resolved validation errors with newer MCP SDK versions
+| Error | Behavior |
+|-------|----------|
+| **Rate Limit (429)** | Returns retry-after duration and remaining quota |
+| **Invalid API Key** | Clear authentication error message |
+| **Invalid IP Format** | Format validation with helpful message |
+| **API Errors** | Detailed error response with status codes |
+| **Network Issues** | Timeout and connection error handling |
 
-### Enhanced Features
-- **Added**: Complete category mapping (1-23) including DNS Compromise and DNS Poisoning
-- **Improved**: Default verbose mode for more detailed responses
-- **Enhanced**: Cleaner output formatting without markdown for better MCP client compatibility
-- **Updated**: All dependencies to latest stable versions
+## Rate Limits
 
-### Docker Improvements
-- **Optimized**: Alpine-based Docker image for smaller footprint
-- **Simplified**: Removed unnecessary health checks and complex configurations
-- **Streamlined**: Better build process and dependency management
+| Plan | Check Endpoint | Report Endpoint |
+|------|---------------|-----------------|
+| Free | 1,000/day | 100/day |
+| Basic | 3,000/day | 300/day |
+| Premium | 10,000/day | 1,000/day |
+| Enterprise | 100,000/day | 10,000/day |
+
+## Dependencies
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| [mcp](https://pypi.org/project/mcp/) | ≥1.12.0, <2.0.0 | Model Context Protocol SDK |
+| [httpx](https://pypi.org/project/httpx/) | ≥0.27.0 | Async HTTP client |
+| [pydantic](https://pypi.org/project/pydantic/) | ≥2.8.0 | Data validation |
+| [python-dotenv](https://pypi.org/project/python-dotenv/) | ≥1.0.0 | Environment variable loading |
+| [uvicorn](https://pypi.org/project/uvicorn/) | ≥0.32.0 | ASGI server (HTTP transport) |
+| [starlette](https://pypi.org/project/starlette/) | ≥0.45.0 | ASGI framework (HTTP transport) |
+
+## Project Structure
+
+```
+mcp-abuseipdb/
+├── src/
+│   ├── abuseipdb_mcp/              # Python package (uvx/pip)
+│   │   ├── __init__.py
+│   │   ├── server.py               # Entry point (package)
+│   │   └── modules.py              # AbuseIPDBServer class
+│   ├── server.py                   # Entry point (standalone)
+│   └── modules.py                  # AbuseIPDBServer class (standalone)
+├── config/
+│   ├── mcp.json                    # MCP server config (stdio)
+│   └── mcp-docker.json             # MCP Docker config
+├── examples/
+│   └── mcp-client-configs.json     # MCP client config examples
+├── images/                         # Screenshots and demo images
+├── pyproject.toml                  # Package metadata & build config
+├── Dockerfile                      # Alpine-based container
+├── docker-compose.yml              # Stdio + HTTP services
+├── requirements.txt                # Legacy pip dependencies
+├── LICENSE                         # MIT License
+└── README.md
+```
 
 ## Troubleshooting
 
-### Common Issues
+| Problem | Solution |
+|---------|----------|
+| `API key required` error | Set `ABUSEIPDB_API_KEY` environment variable |
+| Connection timeout | Check network connectivity and firewall settings |
+| Rate limit exceeded | Wait for retry period or upgrade AbuseIPDB plan |
+| Invalid IP format | Use properly formatted IPv4 or IPv6 addresses |
+| `uvx` not found | Install uv: `pip install uv` or see [uv docs](https://docs.astral.sh/uv/) |
+| MCP client not connecting | Verify `claude_desktop_config.json` syntax and paths |
 
-1. **"API key required" error**: Ensure `ABUSEIPDB_API_KEY` environment variable is set
-2. **Connection timeout**: Check network connectivity and firewall settings
-3. **Rate limit exceeded**: Wait for the retry period or upgrade your AbuseIPDB plan
-4. **Invalid IP format**: Ensure IP addresses are properly formatted IPv4 or IPv6
+## Changelog
 
-### Docker Testing
+### v1.3.0
+- ✅ **uvx / PyPI support** — `uvx mcp-abuseipdb` works out of the box
+- ✅ **`pyproject.toml`** — Modern Python packaging with hatchling
+- ✅ **Entry point** — `mcp-abuseipdb` CLI command via `[project.scripts]`
+- ✅ **Dockerfile updated** — Uses `pip install .` and entry point
+- ✅ **Streamable HTTP transport** — MCP spec 2025-03-26 compliant
 
-Test the server inside Docker:
-
-```bash
-docker run -it --rm -e ABUSEIPDB_API_KEY="your_key" abuseipdb-mcp sh
-# Inside container:
-python -c "from src.server import AbuseIPDBServer; print('✅ Import successful')"
-```
-
-### MCP Client Issues
-
-If you experience issues with MCP clients:
-
-1. **Verify MCP configuration**: Check your `claude_desktop_config.json` syntax
-2. **Test server directly**: Run the Python server and send JSON-RPC messages manually
-3. **Check logs**: Look for error messages in your MCP client logs
-4. **Version compatibility**: Ensure you're using MCP SDK 1.12.2+
+### v1.2.0
+- ✅ MCP SDK 1.12.2 compatibility
+- ✅ Direct `TextContent` list returns (replaces `CallToolResult`)
+- ✅ Complete category mapping (1-23)
+- ✅ Verbose mode enabled by default
+- ✅ Clean output formatting (no markdown)
+- ✅ Alpine Docker image optimization
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests for new functionality
-5. Submit a pull request
-
-## Screenshots & Demo
-
-The screenshots in this README demonstrate real-world usage of the AbuseIPDB MCP server:
-
-- **MCP Integrations Overview**: Shows how the server integrates with MCP-compatible clients
-- **Live IP Analysis**: Real examples of IP reputation checks with detailed threat intelligence
-- **Interactive Usage**: Demonstrates the conversational interface when used with AI assistants like Claude
-
-These examples showcase the server's ability to provide comprehensive cybersecurity intelligence through natural language interactions, making IP reputation analysis accessible and actionable for security professionals and developers.
+4. Submit a pull request
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-### What this means:
-- ✅ **Free to use** for personal and commercial projects
-- ✅ **Modify and distribute** the code as needed
-- ✅ **No warranty** - use at your own risk
-- ✅ **Attribution** - keep the copyright notice when redistributing
-
-The MIT License is one of the most permissive open source licenses, making this project easy to integrate into your cybersecurity toolkit. 
+[MIT License](LICENSE) — free for personal and commercial use.
 
 ---
 
-**Made with ❤️ for the MCP community** 
+**Made with ❤️ for the MCP community**

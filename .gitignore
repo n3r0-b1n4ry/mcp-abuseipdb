@@ -5,3 +5,13 @@
 *.pyw
 *.pyz
 *.pywz
+test/
+test_*.py
+.env
+venv/
+dist/
+build/
+*.egg-info/
+.*
+*log*
+*pyproject.toml

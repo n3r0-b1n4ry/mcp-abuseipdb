@@ -6,11 +6,7 @@ import logging
 import os
 import sys
 
-# Support both direct execution (python src/server.py) and package import (uvx/pip)
-try:
-    from abuseipdb_mcp.modules import AbuseIPDBServer
-except ImportError:
-    from modules import AbuseIPDBServer
+from .modules import AbuseIPDBServer
 
 
 def main():
@@ -24,11 +20,10 @@ Transport modes:
   http    Streamable HTTP - for remote/multi-client access
 
 Examples:
-  mcp-abuseipdb                              # via uvx (recommended)
-  python src/server.py                       # direct execution
-  mcp-abuseipdb --transport http             # HTTP on 0.0.0.0:8000
-  mcp-abuseipdb --transport http --port 3000 # HTTP on custom port
-  MCP_TRANSPORT=http mcp-abuseipdb           # via env var
+  mcp-abuseipdb                              # stdio (default)
+  mcp-abuseipdb --transport http              # HTTP on 0.0.0.0:8000
+  mcp-abuseipdb --transport http --port 3000  # HTTP on custom port
+  MCP_TRANSPORT=http mcp-abuseipdb            # via env var
         """
     )
     parser.add_argument(

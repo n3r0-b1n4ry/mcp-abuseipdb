@@ -374,4 +374,3 @@ class AbuseIPDBServer:
                 server_task.cancel()
 
         asyncio.run(run_server())
-

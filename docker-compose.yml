@@ -1,23 +1,44 @@
 version: '3.8'
 
 services:
+  # Stdio transport (default) - for MCP client integration
   abuseipdb-mcp:
     build: .
     container_name: abuseipdb-mcp-server
     environment:
       - ABUSEIPDB_API_KEY=${ABUSEIPDB_API_KEY}
+      - MCP_TRANSPORT=stdio
     stdin_open: true
     tty: true
     restart: unless-stopped
     volumes:
-      # Optional: Mount logs directory if you want to persist logs
       - ./logs:/app/logs
     networks:
       - mcp-network
     labels:
       - "com.docker.compose.project=abuseipdb-mcp"
-      - "description=AbuseIPDB MCP Server (Python)"
+      - "description=AbuseIPDB MCP Server - Stdio Transport"
+
+  # Streamable HTTP transport - for remote/multi-client access
+  abuseipdb-mcp-http:
+    build: .
+    container_name: abuseipdb-mcp-http
+    environment:
+      - ABUSEIPDB_API_KEY=${ABUSEIPDB_API_KEY}
+      - MCP_TRANSPORT=http
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=8000
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - mcp-network
+    labels:
+      - "com.docker.compose.project=abuseipdb-mcp"
+      - "description=AbuseIPDB MCP Server - Streamable HTTP Transport"
 
 networks:
   mcp-network:
-    driver: bridge 
+    driver: bridge

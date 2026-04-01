@@ -1,7 +1,35 @@
 {
   "examples": {
-    "local_python": {
-      "description": "Local Python MCP server",
+    "uvx_stdio": {
+      "description": "Run via uvx (Recommended - no install needed, stdio transport)",
+      "config": {
+        "mcpServers": {
+          "abuseipdb": {
+            "command": "uvx",
+            "args": ["mcp-abuseipdb"],
+            "env": {
+              "ABUSEIPDB_API_KEY": "your_api_key_here"
+            }
+          }
+        }
+      }
+    },
+    "uvx_http": {
+      "description": "Run via uvx with Streamable HTTP transport",
+      "config": {
+        "mcpServers": {
+          "abuseipdb": {
+            "command": "uvx",
+            "args": ["mcp-abuseipdb", "--transport", "http", "--port", "8000"],
+            "env": {
+              "ABUSEIPDB_API_KEY": "your_api_key_here"
+            }
+          }
+        }
+      }
+    },
+    "local_python_stdio": {
+      "description": "Local Python MCP server (stdio transport)",
       "config": {
         "mcpServers": {
           "abuseipdb": {
@@ -10,6 +38,30 @@
             "env": {
               "ABUSEIPDB_API_KEY": "your_api_key_here"
             }
+          }
+        }
+      }
+    },
+    "local_python_http": {
+      "description": "Local Python MCP server (Streamable HTTP transport)",
+      "config": {
+        "mcpServers": {
+          "abuseipdb": {
+            "command": "python",
+            "args": ["src/server.py", "--transport", "http", "--port", "8000"],
+            "env": {
+              "ABUSEIPDB_API_KEY": "your_api_key_here"
+            }
+          }
+        }
+      }
+    },
+    "remote_http": {
+      "description": "Remote MCP server via Streamable HTTP",
+      "config": {
+        "mcpServers": {
+          "abuseipdb": {
+            "url": "http://your-server:8000/mcp"
           }
         }
       }
@@ -134,6 +186,21 @@
     }
   },
   "claude_desktop_examples": {
+    "uvx_recommended": {
+      "description": "Claude Desktop with uvx (Recommended - zero install)",
+      "file_location": "~/Library/Application Support/Claude/claude_desktop_config.json",
+      "config": {
+        "mcpServers": {
+          "abuseipdb": {
+            "command": "uvx",
+            "args": ["mcp-abuseipdb"],
+            "env": {
+              "ABUSEIPDB_API_KEY": "your_api_key_here"
+            }
+          }
+        }
+      }
+    },
     "python_local": {
       "description": "Claude Desktop with local Python server",
       "file_location": "~/Library/Application Support/Claude/claude_desktop_config.json",
