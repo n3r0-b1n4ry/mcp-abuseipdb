@@ -279,10 +279,10 @@ The included `docker-compose.yml` provides two pre-configured services:
 
 ```bash
 # Stdio service
-ABUSEIPDB_API_KEY="your_key" docker-compose up abuseipdb-mcp
+ABUSEIPDB_API_KEY="your_key" docker compose --profile stdio up abuseipdb-mcp
 
 # HTTP service (exposed on port 8000)
-ABUSEIPDB_API_KEY="your_key" docker-compose up abuseipdb-mcp-http
+ABUSEIPDB_API_KEY="your_key" docker compose --profile http up abuseipdb-mcp-http
 ```
 
 ## Development
