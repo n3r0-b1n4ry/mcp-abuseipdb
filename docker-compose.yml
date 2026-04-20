@@ -4,7 +4,6 @@ services:
     profiles:
       - "stdio"
     image: n3r0b1n4ry/abuseipdb-mcp:latest
-    build: .
     container_name: abuseipdb-mcp
     environment:
       - ABUSEIPDB_API_KEY=${ABUSEIPDB_API_KEY}
@@ -25,7 +24,6 @@ services:
     profiles:
       - "http"
     image: n3r0b1n4ry/abuseipdb-mcp:latest
-    build: .
     container_name: abuseipdb-mcp
     environment:
       - ABUSEIPDB_API_KEY=${ABUSEIPDB_API_KEY}
