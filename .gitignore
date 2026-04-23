@@ -15,3 +15,4 @@ build/
 .*
 *log*
 *pyproject.toml
+*.tar

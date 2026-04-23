@@ -107,6 +107,57 @@ class AbuseIPDBServer:
                     )
                 ]
 
+    def _create_http_client(self) -> httpx.AsyncClient:
+        """
+        Khởi tạo HTTP Client hỗ trợ tải cấu hình proxy internet thông qua cấu hình môi trường.
+        Sử dụng cấu hình tường minh để tránh lỗi RemoteProtocolError/Server Disconnected
+        """
+        http_proxy = os.getenv("HTTP_PROXY") or os.getenv("http_proxy")
+        https_proxy = os.getenv("HTTPS_PROXY") or os.getenv("https_proxy")
+        no_proxy = os.getenv("NO_PROXY") or os.getenv("no_proxy")
+
+        headers = {
+            "User-Agent": "AbuseIPDB-MCP-Server/1.3"
+        }
+
+        proxy_url = https_proxy or http_proxy
+
+        if proxy_url:
+            # Thiết lập tường minh kwarg 'proxy' và 'trust_env=False'.
+            # Điều này giúp bypass lỗi của httpx khi cố parse các IP ranges CIDR (như 10.0.0.0/8)
+            # trong NO_PROXY khiến socket của proxy tunnel bị block/drop (Server disconnected).
+            client = httpx.AsyncClient(
+                timeout=30.0, 
+                proxy=proxy_url, 
+                trust_env=False, 
+                headers=headers,
+                http2=False
+            )
+            logger.debug(f"Đã cấu hình explicit proxy: {proxy_url} (Bypass trust_env để né lỗi regex CIDR)")
+        else:
+            client = httpx.AsyncClient(timeout=30.0, trust_env=True, headers=headers, http2=False)
+
+        return client
+
+    async def _make_request(self, method: str, url: str, **kwargs) -> httpx.Response:
+        """Thực hiện HTTP request với retry logic để phòng ngừa các lỗi network/proxy rớt mạng tạm thời."""
+        max_retries = 3
+        last_error = None
+        for attempt in range(max_retries):
+            try:
+                async with self._create_http_client() as client:
+                    if method == "GET":
+                        return await client.get(url, **kwargs)
+                    elif method == "POST":
+                        return await client.post(url, **kwargs)
+            except httpx.RequestError as error:
+                last_error = error
+                logger.warning(f"Lỗi gọi API [{method}] (lần {attempt + 1}/{max_retries}): {error}")
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(2)
+                    
+        raise last_error
+
     async def check_ip(self, args: Dict[str, Any]):
         ip_address = args.get("ipAddress")
         max_age_in_days = args.get("maxAgeInDays", 30)
@@ -135,19 +186,18 @@ class AbuseIPDBServer:
         url = f"{self.base_url}/check?{urlencode(params)}"
 
         try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.get(url, headers={"Key": self.api_key, "Accept": "application/json"})
-                data = response.json()
+            response = await self._make_request("GET", url, headers={"Key": self.api_key, "Accept": "application/json"})
+            data = response.json()
 
-                if not response.is_success:
-                    return self.handle_api_error(response, data)
+            if not response.is_success:
+                return self.handle_api_error(response, data)
 
-                return [
-                    TextContent(
-                        type="text",
-                        text=self.format_check_response(data)
-                    )
-                ]
+            return [
+                TextContent(
+                    type="text",
+                    text=self.format_check_response(data)
+                )
+            ]
 
         except Exception as error:
             return [
@@ -192,23 +242,23 @@ class AbuseIPDBServer:
             form_data["timestamp"] = timestamp
 
         try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.post(
-                    f"{self.base_url}/report",
-                    headers={"Key": self.api_key, "Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded"},
-                    data=form_data,
+            response = await self._make_request(
+                "POST", 
+                f"{self.base_url}/report",
+                headers={"Key": self.api_key, "Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded"},
+                data=form_data,
+            )
+            data = response.json()
+
+            if not response.is_success:
+                return self.handle_api_error(response, data)
+
+            return [
+                TextContent(
+                    type="text",
+                    text=self.format_report_response(data)
                 )
-                data = response.json()
-
-                if not response.is_success:
-                    return self.handle_api_error(response, data)
-
-                return [
-                    TextContent(
-                        type="text",
-                        text=self.format_report_response(data)
-                    )
-                ]
+            ]
 
         except Exception as error:
             return [
