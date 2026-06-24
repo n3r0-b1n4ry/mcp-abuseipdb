@@ -381,6 +381,7 @@ mcp-abuseipdb/
 | Invalid IP format | Use properly formatted IPv4 or IPv6 addresses |
 | `uvx` not found | Install uv: `pip install uv` or see [uv docs](https://docs.astral.sh/uv/) |
 | MCP client not connecting | Verify `claude_desktop_config.json` syntax and paths |
+| SSL certificate verify failed | Set `ABUSEIPDB_SKIP_SSL_VERIFY=true` (or `SKIP_SSL_VERIFY=true`) env variable to bypass verification |
 
 ## Changelog
 

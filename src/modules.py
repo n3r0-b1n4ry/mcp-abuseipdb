@@ -122,6 +122,15 @@ class AbuseIPDBServer:
 
         proxy_url = https_proxy or http_proxy
 
+        # Hỗ trợ bỏ qua kiểm tra chứng chỉ SSL nếu biến môi trường được đặt
+        skip_ssl_verify = (
+            os.getenv("ABUSEIPDB_SKIP_SSL_VERIFY", "").lower() in ("true", "1", "yes") or
+            os.getenv("SKIP_SSL_VERIFY", "").lower() in ("true", "1", "yes")
+        )
+        verify = not skip_ssl_verify
+        if not verify:
+            logger.warning("SSL certificate verification is disabled")
+
         if proxy_url:
             # Thiết lập tường minh kwarg 'proxy' và 'trust_env=False'.
             # Điều này giúp bypass lỗi của httpx khi cố parse các IP ranges CIDR (như 10.0.0.0/8)
@@ -131,11 +140,18 @@ class AbuseIPDBServer:
                 proxy=proxy_url, 
                 trust_env=False, 
                 headers=headers,
-                http2=False
+                http2=False,
+                verify=verify
             )
             logger.debug(f"Đã cấu hình explicit proxy: {proxy_url} (Bypass trust_env để né lỗi regex CIDR)")
         else:
-            client = httpx.AsyncClient(timeout=30.0, trust_env=True, headers=headers, http2=False)
+            client = httpx.AsyncClient(
+                timeout=30.0, 
+                trust_env=True, 
+                headers=headers, 
+                http2=False,
+                verify=verify
+            )
 
         return client
 
