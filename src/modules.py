@@ -121,6 +121,10 @@ class AbuseIPDBServer:
         }
 
         proxy_url = https_proxy or http_proxy
+        if proxy_url:
+            # Tự động thêm scheme http:// nếu proxy_url thiếu scheme (ví dụ: '10.10.254.15:9090')
+            if not re.match(r'^[a-zA-Z0-9+.-]+://', proxy_url):
+                proxy_url = f"http://{proxy_url}"
 
         # Hỗ trợ bỏ qua kiểm tra chứng chỉ SSL nếu biến môi trường được đặt
         skip_ssl_verify = (
